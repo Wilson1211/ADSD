@@ -2,16 +2,16 @@
 %%%%%%%%%%%%%%%%% Design length n MinMax LP Filter %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Parameter
 n = 19 ; % Filter Length
-k = (n-1)/2; % k = 9
+k = (n-1)/2; % 
 m = k+2; % Local Maximum points = 11
 edge = 0.4; % bandband edge
 fnyq = 2500;
-fs =0.38; % Transition starts
-fe = 0.42; % Transition ends
+fs =0.2; % Transition starts
+fe = 0.25; % Transition ends
 ws = 0.6;
 wp = 1;
 delta = 1/fnyq;
-s = [0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.7 0.45 0.5];% Location of extremas & Initial Guess
+s = [0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.37 0.45 0.5];% Location of extremas & Initial Guess
 resolution = 10^-3;
 axis = 0:resolution:0.5;
 axis1 = 0:resolution:edge; % passband time axix
@@ -27,21 +27,13 @@ Wf = [wp*ones(1,length(axis1)), ws*ones(1,length(axis2))]; % W(F)
 Tf = [ones(1,length(0:resolution:fs)) zeros(1,length(fs+resolution:resolution:fe-resolution)) ones(1,length(fe:resolution:0.5))];
 % excluding error in transition band
 
-for o=1:20 % if not converge, break at 10 iteration  
+for o=1:10 % if not converge, break at 10 iteration  
     %%%%  設定 step2 的 square matrix
-%{
     for i=1:k
         for j = 1:m
-        A(j,i+1) = cos(2*pi*i*s(j));    % 這裡的 s 就是 講義的 Fe
+        A(j,i+1) = cos(2*pi*i*s(j));
         end
-    end
-%}
-%%%%%%%%% own commit
-    j=0:k;
-    A=cos(2*pi*(s')*j);
-    %%%%  補後面 W 那行
-    A = [A,zeros(m,1)];
-%%%%%%%%%
+    end 
     for j=1:m
         if(s(j)<=fs)
             A(j,m) = 1/wp*(-1)^(j-1);
@@ -51,8 +43,6 @@ for o=1:20 % if not converge, break at 10 iteration
         Hv(j,1) = 1;
     end
 
-    %A = [A,[(-1).^[0:k+1]./Wf(s)]']
-    
     %%%%  設定
     for j = 1:m
         if(s(j)<=edge)
@@ -65,16 +55,9 @@ for o=1:20 % if not converge, break at 10 iteration
     snew = a(1:k+1);
     Rf = zeros(1,length(axis));
     %%%% step 3
-    
     for i = 0:k
         Rf = Rf + a(i+1)*cos(2*pi*i*axis);
     end
-%%%%%%%% own commit
-%{ 
-    i=0:k;
-    Rf = sum(sum( [cos(2*pi*(s')*i)]*a ));
-%}
-%%%%%%%%
     errf = (Rf - Hd).*Wf.*Tf;
     %%%%  step 4
     [c,d] =  findpeaks(abs(errf));
