@@ -26,8 +26,9 @@ Hd = [ones(1,length(axis1)), zeros(1,length(axis2))]; % Ideal LPF
 Wf = [wp*ones(1,length(axis1)), ws*ones(1,length(axis2))]; % W(F)
 Tf = [ones(1,length(0:resolution:fs)) zeros(1,length(fs+resolution:resolution:fe-resolution)) ones(1,length(fe:resolution:0.5))];
 % excluding error in transition band
- 
-for o=1:10 % if not converge, break at 10 iteration    
+
+for o=1:10 % if not converge, break at 10 iteration  
+    %%%%  設定 step2 的 square matrix
     for i=1:k
         for j = 1:m
         A(j,i+1) = cos(2*pi*i*s(j));
@@ -39,25 +40,32 @@ for o=1:10 % if not converge, break at 10 iteration
         else
             A(j,m) = 1/ws*(-1)^(j-1);
         end   
-    end 
-    for j = 1:m;
+        Hv(j,1) = 1;
+    end
+
+    %%%%  設定
+    for j = 1:m
         if(s(j)<=edge)
-            Hv(j,1) = 1;
         else
             Hv(j,1) = 0;
         end
     end 
+    %%%%  這裡的 a 就等於講義的 s
     a = inv(A)*Hv;
     snew = a(1:k+1);
     Rf = zeros(1,length(axis));
+    %%%% step 3
     for i = 0:k
         Rf = Rf + a(i+1)*cos(2*pi*i*axis);
     end
     errf = (Rf - Hd).*Wf.*Tf;
-    E0 = max(abs(errf));
+    %%%%  step 4
     [c,d] =  findpeaks(abs(errf));
+    
+    %%%%  step 5
+    E0 = max(abs(errf));
     if length(d)-2 <= m
-        s = zeros(1,m);
+        s = zeros(1,m); %%%% s is the max position
         s(1:length(d)) =  (d-1)*resolution;
         for i=1:m
             if ( s(i)==fs || s(i) == fe)
@@ -70,7 +78,7 @@ for o=1:10 % if not converge, break at 10 iteration
     end        
     % Testing extremas on boundary
     l = m - (length(d)-2);
-    i = 1;    
+    i = 1;
     if i<m+1  % see if 0 is extrema
         if abs(errf(1))>abs(errf(2))
             s(i) = 0; i = i+1;
@@ -91,6 +99,7 @@ for o=1:10 % if not converge, break at 10 iteration
             s(i) = fe; i = i+1;
         end 
     end
+    
     s = sort(s);        
     if E1-E0 > delta || E1-E0 < 0 % continue iteration
        fprintf(1,'---------------------------------------------------------------------------------------------\n');
