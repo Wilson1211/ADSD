@@ -6,12 +6,12 @@ k = (n-1)/2; %
 m = k+2; % Local Maximum points = 11
 edge = 0.4; % bandband edge
 fnyq = 2500;
-fs =0.2; % Transition starts
-fe = 0.25; % Transition ends
+fs =0.38; % Transition starts
+fe = 0.42; % Transition ends
 ws = 0.6;
 wp = 1;
 delta = 1/fnyq;
-s = [0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.37 0.45 0.5];% Location of extremas & Initial Guess
+s = [0.01 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.37 0.45 0.5];% Location of extremas & Initial Guess
 resolution = 10^-3;
 axis = 0:resolution:0.5;
 axis1 = 0:resolution:edge; % passband time axix
@@ -40,12 +40,11 @@ for o=1:10 % if not converge, break at 10 iteration
         else
             A(j,m) = 1/ws*(-1)^(j-1);
         end   
-        Hv(j,1) = 1;
     end
-
     %%%%  ³]©w
     for j = 1:m
-        if(s(j)<=edge)
+        if(s(j)<=edge)        
+            Hv(j,1) = 1;
         else
             Hv(j,1) = 0;
         end

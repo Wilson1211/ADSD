@@ -40,12 +40,11 @@ for o=1:10 % if not converge, break at 10 iteration
         else
             A(j,m) = 1/ws*(-1)^(j-1);
         end   
-        Hv(j,1) = 1;
     end
-
     %%%%  ³]©w
     for j = 1:m
-        if(s(j)<=edge)
+        if(s(j)<=edge)        
+            Hv(j,1) = 1;
         else
             Hv(j,1) = 0;
         end
